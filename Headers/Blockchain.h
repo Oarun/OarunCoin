@@ -24,15 +24,16 @@ public:
     Block(int idx, TransactionData d, std::string prevHash);
 
     // Get original hash
-    std::string getHash();
+    std::string getHash() const;
 
     // Get previous hash
     std::string getPrevHash();
 
     // Validate hash
     bool isHashValid();
+    int getIndex() const;
 
-    Block(int idx, TransactionData d, size_t prevHash);
+    Block(int idx, TransactionData d, std::string prevHash);
 
 private:
     int index;
@@ -52,6 +53,8 @@ public:
     // Constructor
     Blockchain();
     void OuroborosProtocol(); // Proof of Stake
+    void saveChain();
+    void loadChain();
 
 private:
     int chainLength;

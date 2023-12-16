@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <openssl/sha.h>
 #include <assert.h>
+#include <fstream>
 
 Block::Block(int idx, TransactionData d, std::string prevHash)
 {
@@ -14,7 +15,7 @@ Block::Block(int idx, TransactionData d, std::string prevHash)
     blockHash = generateHash();
 }
 
-std::string Block::getHash()
+std::string Block::getHash() const
 {
     return blockHash;
 }
@@ -23,7 +24,10 @@ std::string Block::getPrevHash()
 {
     return prevHash;
 }
-
+int Block::getIndex() const
+{
+    return index;
+}
 bool Block::isHashValid()
 {
     return generateHash() == blockHash;
@@ -129,4 +133,41 @@ void Blockchain::OuroborosProtocol(){
     }
 
     assert(it != chain.end());
+}
+
+void Blockchain::saveChain()
+{
+    std::ofstream file("blockchain.dat");
+    for (const Block& block : chain) {
+        file << block.prevHash << std::endl;
+        file << block.data.senderKey << std::endl;
+        file << block.data.receiverKey << std::endl;
+        file << block.data.amount << std::endl;
+        file << block.data.timestamp << std::endl;
+        file << block.stakeAmount << std::endl;
+        file << block.getIndex() << std::endl;
+        file << block.getHash() << std::endl;
+    }
+}
+void Blockchain::loadChain()
+{
+    std::ifstream file("blockchain.dat");
+    std::string prevHash;
+    std::string senderKey;
+    std::string receiverKey;
+    double amount;
+    time_t timestamp;
+    double stakeAmount;
+    int index;
+    std::string hash;
+    while (file >> prevHash >> senderKey >> receiverKey >> amount >> timestamp >> stakeAmount >> index >> hash) {
+        TransactionData data;
+        data.senderKey = senderKey;
+        data.receiverKey = receiverKey;
+        data.amount = amount;
+        data.timestamp = timestamp;
+        Block block(index, data, prevHash);
+        block.stakeAmount = stakeAmount;
+        chain.push_back(block);
+    }
 }
