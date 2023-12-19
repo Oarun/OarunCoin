@@ -32,9 +32,6 @@ public:
     // Validate hash
     bool isHashValid();
     int getIndex() const;
-
-    Block(int idx, TransactionData d, std::string prevHash);
-
 private:
     int index;
     std::string blockHash;
