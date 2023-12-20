@@ -1,8 +1,8 @@
-#include "../Headers/Blockchain.h"
+#include "../BlockchainHeaders/Blockchain.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 #include <assert.h>
 #include <fstream>
 
@@ -38,14 +38,17 @@ std::string Block::generateHash()
     std::stringstream ss;
     ss << index << prevHash << data.timestamp << data.amount << data.receiverKey << data.senderKey;
 
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, ss.str().c_str(), ss.str().size());
-    SHA256_Final(hash, &sha256);
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int lengthOfHash = 0;
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_sha256(), NULL);
+    EVP_DigestUpdate(ctx, ss.str().c_str(), ss.str().size());
+    EVP_DigestFinal_ex(ctx, hash, &lengthOfHash);
+    EVP_MD_CTX_free(ctx);
 
     std::stringstream sha;
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    for(unsigned int i = 0; i < lengthOfHash; i++)
     {
         sha << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
     }
@@ -170,4 +173,8 @@ void Blockchain::loadChain()
         block.stakeAmount = stakeAmount;
         chain.push_back(block);
     }
+}
+Block Blockchain::getLastBlock() const
+{
+    return chain.back();
 }

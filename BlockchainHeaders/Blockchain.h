@@ -46,6 +46,7 @@ public:
 
     // Add a new block to the chain
     void addBlock(TransactionData data);
+    Block getLastBlock() const;
 
     // Constructor
     Blockchain();
