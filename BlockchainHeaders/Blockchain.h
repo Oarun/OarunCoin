@@ -53,6 +53,7 @@ public:
     void OuroborosProtocol(); // Proof of Stake
     void saveChain();
     void loadChain();
+    bool Blockchain::isValidNewBlock(const Block& newBlock) const;
 
 private:
     int chainLength;

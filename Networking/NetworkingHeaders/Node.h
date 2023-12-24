@@ -1,30 +1,47 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "uv.h"
+#include <iostream>
 #include <string>
-#include <openssl/evp.h>
-#include <openssl/aes.h>
-#include <openssl/rand.h>
+#include <map>
+#include <sstream>
+#include <vector>
+
+#include "../../BlockchainHeaders/Blockchain.h"
 
 class Node {
 public:
-    std::string encryptedIpAddress;
-    std::string encryptedPort;
-    std::string lastBlockHash;
 
 
+    uv_stream_t* stream;
 
-    Node(std::string ipAddress, int port, std::string lastBlockHash, const std::string& key, const std::string& iv);
+    Node();
+    Node(std::string ipAddress, int port, std::string lastBlockHash);
 
-    std::string getIpAddress(const std::string& key, const std::string& iv);
+    std::string getIpAddress() const;
 
-    int getPort(const std::string& key, const std::string& iv);
+    int getPort() const;
+
+    // joining and leaving the network
+    void syncWithNetwork();
+    void AnnounceLeaveNetwork();
     
+    //P2P discovery methods
+    void onRead(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf);
+    std::string getPeersList();
+    void sendPeersList(uv_stream_t* stream);
+    void sendData(uv_stream_t* stream, const std::string& data);
+    void listenForChanges();
+
 
 private:
-    std::string encrypt(const std::string& plaintext, const std::string& key, const std::string& iv);
 
-    std::string decrypt(const std::string& ciphertext, const std::string& key, const std::string& iv);
+    std::string ipAddress;
+    int port;
+    std::string lastBlockHash;
+    std::vector<Node> peers;
+    Blockchain blockchain;
 };
 
 #endif // NODE_H

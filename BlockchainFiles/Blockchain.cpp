@@ -178,3 +178,14 @@ Block Blockchain::getLastBlock() const
 {
     return chain.back();
 }
+bool Blockchain::isValidNewBlock(const Block& newBlock) const {
+    for (const Block& block : chain) {
+        if (block.getHash() == newBlock.getHash()) {
+            // The new block already exists in the blockchain
+            return false;
+        }
+    }
+
+    // The new block doesn't exist in the blockchain
+    return true;
+}
